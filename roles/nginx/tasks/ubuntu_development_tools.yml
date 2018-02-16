@@ -1,0 +1,56 @@
+---
+
+# Installing development tools like GCC, C++, etc., required to Ubuntu
+- name: Installing Development Tools in Ubuntu
+  apt:
+   name: build-essential
+   state: present
+   
+# Install dependicies required for nginx
+
+# Downloading and Installing PCRE  
+- name: Download and unarchive PCRE
+  get_url: url=https://ftp.pcre.org/pub/pcre/pcre-8.40.tar.gz dest=/opt validate_certs=False  
+         
+- name: untar
+  command: chdir=/usr/share /bin/tar xvf /opt/pcre-8.40.tar.gz -C /opt/ creates=/opt/pcre-8.40
+   
+- name: Installing PCRE
+  shell: ./configure && make && make install
+  args:
+   chdir: /opt/pcre-8.40
+
+
+# Downloading and Installing Zlib  
+- name: Download and unarchive Zlib
+  unarchive:
+   src: http://zlib.net/zlib-1.2.11.tar.gz
+   dest: /opt
+   copy: no
+
+#- name: Download and unarchive Zlib
+ # get_url: url=wget http://zlib.net/zlib-1.2.11.tar.gz dest=/opt/zlib-1.2.11.tar.gz
+  
+#- name: untar
+ # command: chdir=/usr/share /bin/tar xvf /opt/zlib-1.2.11.tar.gz -C /opt/ creates=/opt/zlib-1.2.11
+
+
+
+- name: Installing Zlib
+  shell: ./configure && make && make install
+  args:
+   chdir: /opt/zlib-1.2.11
+   
+   
+# Downloading and Installing OpenSSL  
+- name: Download and unarchive OpenSSL
+  get_url: url=http://www.openssl.org/source/openssl-1.0.2f.tar.gz dest=/opt validate_certs=False
+  
+- name: untar
+  command: chdir=/usr/share /bin/tar xvf /opt/openssl-1.0.2f.tar.gz -C /opt/ creates=/opt/openssl-1.0.2f
+   
+- name: Installing OpenSSL
+  shell: ./config --prefix=/usr && make && make install
+  args:
+   chdir: /opt/openssl-1.0.2f
+   

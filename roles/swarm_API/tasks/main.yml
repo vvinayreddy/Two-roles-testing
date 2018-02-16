@@ -1,0 +1,41 @@
+---
+
+#install docker if not present 
+- name: install docker 
+  shell: curl -fsSL https://get.docker.com | sh
+
+#copy file docker.service
+- name: copy files 
+  template:
+    src: docker.service
+    dest: /lib/systemd/system/
+    mode: 0755
+
+#copy file docker         
+- name: copy files 
+  template:
+    src: docker
+    dest: /etc/default/
+    mode: 0755
+
+
+#copy scriptfile  
+- name: copy scriptfile
+  template:
+    src: createkey.sh
+    dest: /etc/
+    mode: 0755
+  when: secure
+    
+#run scriptfile
+- name: run script file
+  command: /etc/createkey.sh 
+  when: secure
+
+#restart docker
+- service:
+    name: docker
+    state: restarted
+
+
+ 

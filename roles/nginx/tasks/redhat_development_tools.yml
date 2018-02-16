@@ -1,0 +1,49 @@
+---
+
+# Installing development tools like GCC, C++, etc., required to RedHat
+- name: Installing Development Tools in RedHat/AmazonLinux
+  yum:
+   name: "@Development Tools"
+   state: present
+   
+
+# Install dependicies required for nginx
+
+# Downloading and Installing PCRE  
+- name: Download and unarchive PCRE
+  unarchive:
+   src: https://ftp.pcre.org/pub/pcre/pcre-8.40.tar.gz
+   dest: "{{ path_to_install }}"
+   copy: no
+   
+- name: Installing PCRE
+  shell: ./configure && make && make install
+  args:
+   chdir: "/opt/pcre-8.40"
+
+
+# Downloading and Installing Zlib  
+- name: Download and unarchive Zlib
+  unarchive:
+   src: http://zlib.net/zlib-1.2.11.tar.gz
+   dest: "/opt"
+   copy: no
+   
+- name: Installing Zlib
+  shell: ./configure && make && make install
+  args:
+   chdir: "/opt/zlib-1.2.11"
+   
+   
+# Downloading and Installing OpenSSL  
+- name: Download and unarchive OpenSSL
+  unarchive:
+   src: http://www.openssl.org/source/openssl-1.0.2f.tar.gz
+   dest: "/opt"
+   copy: no
+   
+- name: Installing OpenSSL
+  shell: ./config --prefix=/usr && make && make install
+  args:
+   chdir: "/opt/openssl-1.0.2f"
+   

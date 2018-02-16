@@ -1,0 +1,40 @@
+---
+# This playbook will install mysql and create db user and give permissions.
+
+
+- name: Configure host name
+  command: hostname -f
+  
+
+- name: updating yum
+  yum: name=*   state=installed
+
+- name: install wget 
+  yum: name=wget state=installed
+
+- name: get the package
+  command: wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+  
+
+- name: install
+  yum:
+     name=mysql-community-release-el7-5.noarch.rpm
+
+
+ 
+- name: updateing yum
+  yum: name=* state=installed
+  
+- name: install mysql-server
+  yum: name=mysql-server state=present
+  
+- name: start mysqld
+  service: name=mysqld state=started
+  
+
+- name: install mysql-server
+  yum: name=mysql-server state=present
+
+  
+- name: Create Application DB User
+  user: name=root password=root  state=present

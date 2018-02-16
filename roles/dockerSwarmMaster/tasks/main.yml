@@ -1,0 +1,99 @@
+---
+
+#install docker if not present 
+- name: install docker 
+  shell: curl -fsSL https://get.docker.com | sh
+
+#copy file from local host to remote host  
+- name: copy file if it exists
+  copy: 
+    src: /home/keys/ca.pem 
+    dest: "{{ remote_key_path }}"
+
+
+#copy file from local host to remote host 
+- name: copy file if it exists
+  copy: 
+    src:  /home/keys/ca-key.pem 
+    dest: "{{ remote_key_path }}"
+
+#copy file docker.service
+- name: copy files 
+  template:
+    src: docker.service
+    dest: /lib/systemd/system/
+    mode: 0755
+
+#copy file docker         
+- name: copy files 
+  template:
+    src: docker
+    dest: /etc/default/
+    mode: 0755
+
+
+#copy scriptfile  
+- name: copy scriptfile
+  template:
+    src: createkey.sh
+    dest: /opt/
+    mode: 0755
+    
+#run scriptfile
+- name: run script file
+  command: sh /opt/createkey.sh {{ groups['master'][0] }}
+
+#restart docker
+- service:
+    name: docker
+    state: restarted
+
+
+#Add swarm manager node 
+- name: Init "Swarm Mode" on the first manager.
+  shell: docker swarm init --advertise-addr {{ groups['master'][0] }}:2377
+  register: docker_token_msg    
+
+#prints the registered token message
+- debug:
+    msg: "THis is the hostvars form the above command  {{ docker_token_msg.stdout }}"
+
+#registers only the token 
+- name: register the token
+  shell: docker swarm join-token -q worker
+  register: docker_worker_token
+  
+
+#prints only the token
+- debug:
+    msg: "THis is the hostvars form the above command  {{ docker_worker_token.stdout }}"
+
+#captures the token into the variable managetoken
+- name: capture token into managetoken
+  set_fact:
+    managertoken: "{{ docker_worker_token.stdout }}"
+
+#check images
+- name: check images
+  shell: curl  https://{{ groups['master'][0] }}:2376/images/json  --cert {{ keys_path }}/cert.pem --key {{ keys_path }}/key.pem --cacert {{ keys_path }}/ca.pem
+  register: images
+        
+#prints the images
+- debug:
+    msg: "the output is {{ images.stdout }}"   
+    
+    
+    
+    
+
+    
+    
+
+
+  
+  
+  
+     
+  
+
+

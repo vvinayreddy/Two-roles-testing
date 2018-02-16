@@ -1,0 +1,55 @@
+---
+- name: create a hostname
+  shell: hostnamectl set-hostname 'kbslave1.stackdc.com' 
+
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+
+- name: set DNS name
+  shell: echo -e "\n127.0.0.1	kube-master" >> /etc/hosts
+
+- name: install transport-https
+  apt:
+    name: apt-transport-https
+    state: latest
+
+- name: get key
+  shell: curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+- name: copy file to apt-repo
+  template:
+    src: kubernetes.list
+    dest: /etc/apt/sources.list.d/
+
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+
+- name: install transport-https
+  apt:
+    name: docker.io
+    state: latest
+
+- name: Install list of packages
+  action: apt pkg={{item}} state=installed
+  with_items:
+       - kubelet
+       - kubeadm
+       - kubectl
+       - kubernetes-cni
+
+- name: join the worker to the master
+  shell: "{{ hostvars [groups['master'][0]] ['managertoken'] }}"
+
+- name: comment network_args
+  shell: sed -i '/KUBELET_NETWORK_ARGS=/s/^/#/' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: restart kubelet
+  service: 
+    name: kubelet
+    state: restarted

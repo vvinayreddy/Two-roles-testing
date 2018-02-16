@@ -1,0 +1,34 @@
+---
+# Downloads the source file from the MariaDB-Server
+- name: extract archive
+  get_url:
+    url: http://downloads.mariadb.com/MariaDB/mariadb-10.1.22/repo/ubuntu/mariadb-10.1.22-ubuntu-trusty-amd64-debs.tar
+    dest: /opt/
+    
+- unarchive:
+    src: /opt/mariadb-10.1.22-ubuntu-trusty-amd64-debs.tar
+    dest: /opt/
+    copy: no
+
+# Runs the shell command for the repository installed  
+- name: shell command for mariadb debs
+  shell: /opt/mariadb-10.1.22-ubuntu-trusty-amd64-debs/setup_repository    
+
+# Runs the apt-get update    
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+
+# Installs the MariaDB-Server     
+- name: Install MariaDB Server  
+  apt: name=mariadb-server update_cache=yes install_recommends=no force=yes
+
+    
+# Starts the MariaDB-Service    
+- name: Start mariadb service
+  service: name=mysql state=started
+
+
+  
+ 

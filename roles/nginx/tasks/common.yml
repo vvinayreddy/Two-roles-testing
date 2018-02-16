@@ -1,0 +1,7 @@
+---
+- name: create base installation directory
+  file: path=/apps mode=0755 state=directory
+- name: create logs directory
+  file: path=/logs mode=0755 state=directory
+- name: create base data directory
+  file: path=/data mode=0755 state=directory

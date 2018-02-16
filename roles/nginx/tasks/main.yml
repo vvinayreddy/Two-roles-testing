@@ -1,0 +1,24 @@
+---
+#common to RedHat/Ubuntu/AmazonLinux
+- name: install python
+  apt:
+    name: python3
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: install updates
+  apt:
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+
+- include: redhat_development_tools.yml
+  when: ansible_os_family == 'RedHat' or ansible_os_family == 'Amazon'
+
+- include: ubuntu_development_tools.yml
+  when: ansible_distribution == "Ubuntu"
+
+- include: common.yml
+
+- include: nginx.yml  
+

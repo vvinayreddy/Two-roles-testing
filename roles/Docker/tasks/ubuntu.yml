@@ -1,0 +1,60 @@
+---
+#this is playbook will install docker
+- name: install docker
+  shell: curl -fsSL https://get.docker.com | sh
+
+- name: add user to docker group
+  shell: usermod -aG docker ubuntu
+
+- name: start docker
+  service: 
+    name: docker
+    state: started
+
+#copy file docker.service
+- name: copy files 
+  template:
+    src: docker.service
+    dest: /lib/systemd/system/
+    mode: 0755
+
+#copy file docker         
+- name: copy files 
+  template:
+    src: docker
+    dest: /etc/default/
+    mode: 0755
+    
+#copy file docker.secure to docker         
+- name: copy files 
+  template:
+    src: docker.secure
+    dest: /etc/default/docker
+    mode: 0755
+  when: secure
+
+
+#copy scriptfile  
+- name: copy scriptfile
+  template:
+    src: createkey.sh
+    dest: /etc/
+    mode: 0755
+  when: secure
+
+ 
+    
+#run scriptfile
+- name: run script file
+  command: /etc/createkey.sh 
+  when: secure
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  
+#restart docker
+- service:
+    name: docker
+    state: restarted
+
+

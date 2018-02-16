@@ -1,0 +1,7 @@
+---
+nginx_online_install: false
+nginx_installer_path: /var/installers/nginx-1.2.6.tar.gz
+nginx_version: 1.2.6
+nginx_base_install_dir: /apps
+nginx_base_logs_dir: /logs
+nginx_base_data_dir: /data

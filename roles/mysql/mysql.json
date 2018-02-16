@@ -1,0 +1,61 @@
+module.exports.config={
+    "access": {
+        "user": "ubuntu",
+        "keypair": {
+            "name": "goutam1",
+            "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAssCOgJARGUqrVRKzRne3UfcdgipidZZ89EbCnB9mbKkT5TaBmMEwqz4qkjlc\ndP9EHlERoyX+Fpy6/MBFq0b8EWp8spDMFGLdqnvb6hFNumQ7esYaqkghi/DyNJTE4MjZxhBHRQqW\nDx+U/3kgY24+rtsciCRYuS7Qp3ttLBZ+lTPPqQOfc82/Roo/1lI4Ix5ftbHDmElRFxJ8W2eJNtTe\nUQ9dLTkF38PRqF8hQkyQYewBf6A2gQl9XbF2kbTKms2aRe23lH1Imr/oI8RutDXB/Pa7vvtS+YP6\nxSGtOunaUBbgnYn2W2aCfNJngQU5xSbjwsFFjG7yJSymDkFGE6Kw9wIDAQABAoIBAQCI81R6lWY0\nTWwVIt2tmJ0gNEcsahLDaofTk78YZEpR5/xxOaBzC1ihamCtZTs7/DMRUyVDLSGN64irixgVkK4h\nHcfp+1wQJmsUag7kN1uo+ZBEkTDu05K4J+M5e92XJusKf4BLGkA72AOM9B1ncJif2Qn0GHzNbFu6\nZasQAy/6WMxdhSWYrBjSHJa7rR1mTElIh8b+NInlF9M8Sg41XAdz54X/0R6b8tvN67XxiQCgThiQ\n1mwe0UYZxCR6w8jTCJEr4oOAlnZtyR+9LXXmeaDbjAIxAbXOtoVTL+XadoRSfDtpZCcgwyhEC4bZ\nLXRt6w+hfn14jUxvYufShZO9zRTJAoGBAPJyRa4GFohamV1pOL5x7McAgO9ZYjgKAlQ4N1pRG6s7\ne6svEw+5E4KMTTjhDs5wnNCMVYSI0GdVwEROIzTWzYHhcwj225j1f9yIYZM+yPsaeyGg9FtVofaP\niLwcpa9yobZj7mU+7FGaLaxnZAIL+q52vjkxaUnZP6X78GuUs8wzAoGBALy+vH/my8odI6VRyacx\nrAs5zAJM59JCrNORfMKINLDejJK8wSg/nOFE3tjb2t8lKY9ZYPh+6FtpNwTSVcl4ZJh20KKt/3Zj\nZTSc0A5jRYg7zxdOLtK5mHxkb6I83ELswBPW6ddafmrejji6cIOLzHyHtZ4lgSXafOTMLdX0zQQt\nAoGBAM1RwvregwSUnV8DNh/qgRgCsC6C5vAIYfKK7S2alLENnezZ3+2n0gLz6I3r4ssniVYAEog8\nCSoJ79qoxZ4A72c302DbFhvShKbyBJhbSn+E7JQNKAOVYKVa5vRP2mzbymGY/ZJWmHF+/YEMyiAF\nnxVS0EPFOaJlzkY2N2QUObQLAoGAEmN+1/MzbZiTLXsfa2OigGF8J8k4WLrYPbCR+B3vDEBSb8Vm\nCDbSYPwlvfkFhPII74dktDEhEC7bBmQ7qWpKWrRQtVjAZ9ddN9gDSTOQxaoWDg42757XZV8fpS3K\nw9ZvDD/G/o05fc37CznW1mobXRKXtjWvNHHp8xyVZp/4DW0CgYAakcd7NglRrHXUvxzVK7d4m9W5\nQN9XXZi8Y8Oa7X0B+0Bf8TEvb8z3Q8hheYF58p0L9VC0SMjbVgD2qndTRytjNFfIZJozVgFDhR71\n0rhN55Dc6LnoLNe0YgO3DumnrJMDhIJn7WqQRUoIZdPjy4hK1hw7I/X0aB+0OhAZKPOpCA==\n-----END RSA PRIVATE KEY-----"
+        }
+    },
+    "TestCases":[{
+        "name":"Test open-jdk Ansible Roles in Ubuntu and Centos",
+         "playbooks":[
+              {
+            "name":"install mysql",
+            "localFile": "playbooks/mysql.yml",
+            "vars":{
+                rpm: "http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm"
+            }
+        }
+             ],
+        "instances":[
+           {
+            "ImageId": "ami-5e63d13e", // amzn-ami-2011.09.1.x86_64-ebs//ubuntu
+            "InstanceType": "t2.micro",
+            "MinCount": "1",
+            "SecurityGroupIds": ['sg-8e3cb8f6'],
+            "KeyName": "goutam1",
+            "MaxCount": "1",
+            "SubnetId": "subnet-cca378ab",
+           // "instanceIp":"54.71.100.201"
+    },
+     {
+            "ImageId": "ami-6f68cf0f", // amzn-ami-2011.09.1.x86_64-ebs//redhat
+            "InstanceType": "t2.micro",
+            "MinCount": "1",
+            "SecurityGroupIds": ['sg-8e3cb8f6'],
+            "KeyName": "goutam1",
+            "MaxCount": "1",
+            "SubnetId": "subnet-cca378ab",
+           // "instanceIp":"54.71.100.201"
+    }
+            ] ,
+            "validation":[{
+                "type":'http',
+                "data":{
+                    "url":"http://{{instanceIp}}:8080",
+                     "statusCode":200
+                }                
+                
+            },
+            {
+                "type":"ssh",
+                "playbook": {
+                    "shell":"mysql --version",
+                    "result":"mysql  Ver 14.14 Distrib 5.6.35, for Linux (x86_64) using  EditLine wrapper"
+                }
+            }
+            ]
+    }
+    ]
+    
+}

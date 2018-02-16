@@ -1,0 +1,60 @@
+---
+#installs docker 
+- name: install docker 
+  shell: curl -fsSL https://get.docker.com | sh
+ 
+
+ #Add swarm worker node on slave
+- name: Join the pending Swarm worker nodes.
+  shell: docker swarm join --token {{ hostvars [groups['master'][0]] ['managertoken'] }} {{ groups['master'][0] }}:2377
+ 
+#copy file from local host to remote host  
+- name: copy file if it exists
+  copy: 
+    src: /home/keys/ca.pem 
+    dest: "{{ remote_key_path }}"
+
+
+#copy file from local host to remote host 
+- name: copy file if it exists
+  copy: 
+    src: /home/keys/ca-key.pem 
+    dest: "{{ remote_key_path }}"
+  
+#copies file to docker.service  
+- name: copy files 
+  template:
+    src: docker.service
+    dest: /lib/systemd/system/
+    mode: 0755
+
+#copies file to docker         
+- name: copy files 
+  template:
+    src: docker
+    dest: /etc/default/
+    mode: 0755
+
+#copies scriptfile
+- name: copy scriptfile
+  template:
+    src: createkey.sh
+    dest: /opt/
+    mode: 0755
+
+#runs the scriptfile
+- name: run script file
+  command: sh /opt/createkey.sh {{ groups['slaves'][0] }}
+    
+#restart docker  
+- name: restart
+  service: name=docker state=restarted
+  
+#check images
+- name: check images
+  shell: curl  https://{{ groups['master'][0] }}:2376/images/json  --cert {{ keys_path }}/cert.pem --key {{ keys_path }}/key.pem --cacert {{ keys_path }}/ca.pem
+  register: images
+
+#prints the images        
+- debug:
+    msg: "{{ images.stdout }}"

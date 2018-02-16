@@ -1,0 +1,117 @@
+---
+- name: create a hostname
+  shell: hostnamectl set-hostname 'kbmaster.stackdc.com' 
+
+# name: execute bash
+ # shell: exec bash
+
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+
+- name: set DNS name
+  shell: echo -e "\n127.0.0.1	kube-master" >> /etc/hosts
+
+- name: install transport-https
+  apt:
+    name: apt-transport-https
+    state: latest
+
+- name: get key
+  shell: curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+- name: copy file to apt-repo
+  template:
+    src: kubernetes.list
+    dest: /etc/apt/sources.list.d/
+
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+
+- name: install transport-https
+  apt:
+    name: docker.io
+    state: latest
+
+- name: Install list of packages
+  action: apt pkg={{item}} state=installed
+  with_items:
+       - kubelet
+       - kubeadm
+       - kubectl
+       - kubernetes-cni
+
+- name: get init data into log file
+  shell: kubeadm init > /var/lib/kubelet/kubeadminit.log
+
+
+- name: get init data into log file
+  shell: cat /var/lib/kubelet/kubeadminit.log | grep 'kubeadm join'
+  register: token
+
+- debug: 
+    msg: " the token is {{ token.stdout }}"
+    
+- name: capture token into managetoken
+  set_fact:
+    managertoken: "{{ token.stdout }}"
+
+- debug: 
+    msg: " the token is {{ managertoken }}"
+
+- name: create a directory in home
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+
+- name: copy the config file to run the cluster as a root user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/ubuntu/.kube/config
+    mode: 0644
+    owner: ubuntu
+    group: ubuntu
+    remote_src: true
+
+- name: comment network_args
+  shell: sed -i '/KUBELET_NETWORK_ARGS=/s/^/#/' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: restart kubelet
+  service: 
+    name: kubelet
+    state: restarted
+- name: copy file to apt-repo
+  template:
+    src: keys.sh
+    dest: /home/ubuntu/
+    mode: 0777
+
+- name: run the script file
+  shell: sh /home/ubuntu/keys.sh
+
+- fetch:
+    src: /home/ubuntu/ca.pem
+    dest: /home/vinay/keys/
+    flat: yes
+
+- fetch:
+    src: /home/ubuntu/cert.pem
+    dest: /home/vinay/keys/
+    flat: yes
+
+- fetch:
+    src: /home/ubuntu/key.pem
+    dest: /home/vinay/keys/
+    flat: yes
+
+#- name: apply weave to the kubernetes configuration
+ # shell: kubectl apply -f https://git.io/weave-kube

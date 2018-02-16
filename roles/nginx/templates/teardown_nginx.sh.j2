@@ -1,0 +1,73 @@
+#!/bin/bash
+check_running () {
+        APP_RUNNING=`ps -ef | grep {{ nginx_base_install_dir }}/nginx-{{ nginx_version }} | grep -v grep | wc -l`
+        return $APP_RUNNING
+}
+kill_by_path () {
+        SIGNAL=$1
+        ps -ef | grep {{ nginx_base_install_dir }}/nginx-{{ nginx_version }} | grep -v grep | awk '{print $2}' | xargs kill $SIGNAL
+}
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        if [ -f /etc/init.d/nginx ]; then
+                echo "Stopping nginx with rc script"
+                /etc/init.d/nginx stop && sleep 5
+        fi
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Stopping nginx with TERM signal"
+        kill_by_path -TERM
+        sleep 3
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Stopping nginx with KILL signal"
+        kill_by_path -KILL
+        sleep 1
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Failed to stop application"
+        exit 1
+else
+        echo "Application: nginx stopped"
+fi
+if [ -d {{ nginx_base_install_dir }}/nginx-{{ nginx_version }} ]; then
+        rm -r {{ nginx_base_install_dir }}/nginx-{{ nginx_version }}
+        echo "Application directory: {{ nginx_base_install_dir }}/nginx-{{ nginx_version }} deleted."
+else
+        echo "Application directory: {{ nginx_base_install_dir }}/nginx-{{ nginx_version }} doesn't exist."
+fi
+
+
+/sbin/chkconfig --del nginx
+echo "Service nginx deleted with chkconfig."
+
+if [ -h {{ nginx_base_install_dir }}/nginx  ]; then
+        rm {{ nginx_base_install_dir }}/nginx
+        echo "Symlink: {{ nginx_base_install_dir }}/nginx deleted."
+else
+        echo "Symlink: {{ nginx_base_install_dir }}/nginx doesn't exist."
+fi
+
+if [ -d {{ nginx_base_data_dir }}/nginx ]; then
+        rm -r {{ nginx_base_data_dir }}/nginx
+        echo "Data directory: {{ nginx_base_data_dir }}/nginx deleted."
+else
+        echo "Data directory: {{ nginx_base_data_dir }}/nginx doesn't exist."
+fi
+
+if [ -f /etc/init.d/nginx ]; then
+        rm /etc/init.d/nginx
+        echo "Startup script: /etc/init.d/nginx deleted."
+else
+        echo "Startup script: /etc/init.d/nginx doesn't exist."
+fi
+rm -- "$0"
+echo "Deleted tear down script."
+exit 0

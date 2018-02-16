@@ -1,0 +1,48 @@
+
+---
+#downloads tar-file
+- name: download tar file
+  shell: curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.2.tgz
+
+#untar the downloaded file
+- name: Unzip tar file
+  unarchive: src=/home/centos/mongodb-linux-x86_64-3.4.2.tgz dest=/opt/ copy=no
+
+#add path to .bashrc 
+- name: set mongo home in bashrc file
+  lineinfile:
+    dest: /home/centos/.bashrc
+    line: export PATH=/opt/mongodb-linux-x86_64-3.4.2/bin:$PATH
+    
+#add path to .bashrc    
+- name: set mongo path in bashrc file
+  lineinfile:
+    dest: /home/centos/.bashrc
+    line: export MONGO_HOME=/opt/mongodb-linux-x86_64-3.4.2/bin/mongod
+
+
+#source the bashrc  
+- name: execute source command to make the changes to effect
+  sudo: yes 
+  shell: source /home/centos/.bashrc
+  args:
+     executable: /bin/bash
+
+  
+#creating directory     
+- name: create a database directory for mongodb
+  file:
+    path: /data/db  
+    state: directory
+    mode: 0777 
+
+- name: copy mongo.service file 
+  template: 
+    src: mongo.service.centos
+    dest: /etc/systemd/system/mongo.service
+
+- name: make sure mongo is started
+  service:
+    name: mongo
+    state: started
+
