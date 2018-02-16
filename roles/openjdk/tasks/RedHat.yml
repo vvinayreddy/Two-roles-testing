@@ -1,0 +1,36 @@
+# creating a direcory for java installation in the machine
+- name: creating a director for java installation
+  file:
+    path: /usr/lib/jvm
+    state: directory
+    
+#download tar file
+- name: download java tar file
+  get_url:
+    url: "http://www.java.net/download/jdk8u60/archive/b17/binaries/jdk-8u60-ea-bin-b17-linux-x64-26_may_2015.tar.gz"
+    dest: /opt
+    mode: 0777
+
+#untar
+- name: untar the java tar ball
+  shell: tar xvzf /opt/jdk-8u60-ea-bin-b17-linux-x64-26_may_2015.tar.gz -C /usr/lib/jvm
+    
+
+# setting the java home path in .bashrc file
+- name: setting java home path
+  lineinfile:
+    dest: /root/.bashrc
+    line: export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_60
+    state: present
+
+# setting the java bin path in .bashrc file
+- name: setting the java path
+  lineinfile:
+    dest: /root/.bashrc
+    line: export PATH=$JAVA_HOME/bin:$PATH
+    state: present  
+  
+# executing the source command to load functions into current shell  
+- name: running the source command
+  shell: source /root/.bashrc
+  

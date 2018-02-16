@@ -1,9 +1,0 @@
----
-# from github
-- src: https://github.com/stackaero/ansible
-  version: master
-  name: tomcat
-# from Bitbucket
-- src: https://github.com/stackaero/ansible
-  version: master
-  name: open-jdk

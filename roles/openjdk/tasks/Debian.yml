@@ -1,0 +1,45 @@
+---
+#install packages
+- name: Install os packages
+  apt: 
+    pkg: "{{item}}"
+    state: present 
+    update_cache: yes
+  with_items: 
+    - openjdk-7-jre-headless
+    - openjdk-7-jdk
+
+#find path
+- name: Resolve /usr/lib/jvm/java-7-*/jre/lib/*/server/libjvm.so
+  shell: find /usr/lib/jvm/java-7-*/jre/lib/*/server/libjvm.so
+  register: libjvm_path_resolved
+
+
+# Here we get back to ansible land...
+- name: Check for /usr/lib/jvm/java-7-*/jre/lib/*/server/libjvm.so
+  stat: 
+    path: "{{libjvm_path_resolved.stdout}}"
+  register: libjvm
+
+- name: Link libjvm
+  shell: ln -nsf {{libjvm_path_resolved.stdout}} /usr/lib/libjvm.so
+  when: libjvm.stat.exists == true
+
+#creates symlink
+- name: Check if symlink created
+  stat: 
+    path: "/usr/lib/libjvm.so"
+  register: libjvm_symlink
+
+#check version
+- name: check version
+  shell: java -version
+  register: version
+
+- debug:
+    msg: "java version is {{ version }}"
+
+- fail: 
+    msg: "Could not create libjvm symlink /usr/lib/libjvm.so"
+  when: libjvm_symlink.stat.exists == False
+  
