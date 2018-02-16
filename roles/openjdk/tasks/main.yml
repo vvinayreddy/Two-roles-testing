@@ -13,14 +13,14 @@
 
 #untar
 - name: untar the java tar ball
-  shell: tar xvzf /opt/java.tar.gz -C /usr/lib/jvm
+  shell: tar xvzf /opt/java.tar.gz -C /opt/
     
 
 # setting the java home path in .bashrc file
 - name: setting java home path
   lineinfile:
     dest: /etc/environment
-    line: JAVA_HOME=/usr/lib/jvm/jdk1.8.0_60
+    line: JAVA_HOME=/opt/jdk1.8.0_60
     state: present
 
 # setting the java bin path in .bashrc file
