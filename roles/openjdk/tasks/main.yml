@@ -17,18 +17,18 @@
     
 
 # setting the java home path in .bashrc file
-- name: setting java home path
-  lineinfile:
-    dest: /etc/environment
-    line: JAVA_HOME=/opt/jdk1.8.0_60
-    state: present
+# - name: setting java home path
+#   lineinfile:
+#     dest: /etc/environment
+#     line: JAVA_HOME=/opt/jdk1.8.0_60
+#     state: present
 
-# setting the java bin path in .bashrc file
-- name: setting the java path
-  lineinfile:
-    dest: /etc/environment
-    line: PATH=$JAVA_HOME/bin:$PATH
-    state: present  
+# # setting the java bin path in .bashrc file
+# - name: setting the java path
+#   lineinfile:
+#     dest: /etc/environment
+#     line: PATH=$JAVA_HOME/bin:$PATH
+#     state: present  
 
 # executing the source command to load functions into current shell  
 # - name: running the source command
