@@ -7,13 +7,13 @@
 #download tar file
 - name: download java tar file
   get_url:
-    url: "http://www.java.net/download/jdk8u60/archive/b17/binaries/jdk-8u60-ea-bin-b17-linux-x64-26_may_2015.tar.gz"
+    url: "https://storage.googleapis.com/jdkbucket/java.tar.gz"
     dest: /opt
     mode: 0777
 
 #untar
 - name: untar the java tar ball
-  shell: tar xvzf /opt/jdk-8u60-ea-bin-b17-linux-x64-26_may_2015.tar.gz -C /usr/lib/jvm
+  shell: tar xvzf /opt/java.tar.gz -C /usr/lib/jvm
     
 
 # setting the java home path in .bashrc file
