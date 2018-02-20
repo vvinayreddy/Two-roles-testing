@@ -13,7 +13,7 @@
 
 
 - include: redhat_development_tools.yml
-  when: ansible_os_family == 'RedHat' or ansible_os_family == 'Amazon'
+  when: ansible_os_family == 'RedHat' or ansible_os_family == 'Amazon' or ansible_os_family == 'Centos'
 
 - include: ubuntu_development_tools.yml
   when: ansible_distribution == "Ubuntu"
